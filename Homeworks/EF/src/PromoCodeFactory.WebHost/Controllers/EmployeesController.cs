@@ -62,8 +62,8 @@ namespace PromoCodeFactory.WebHost.Controllers
                 Email = employee.Email,
                 Role = new RoleItemResponse()
                 {
-                    Name = employee.Role.Name,
-                    Description = employee.Role.Description
+                    Name = employee.Role?.Name,
+                    Description = employee.Role?.Description
                 },
                 FullName = employee.FullName,
                 AppliedPromocodesCount = employee.AppliedPromocodesCount

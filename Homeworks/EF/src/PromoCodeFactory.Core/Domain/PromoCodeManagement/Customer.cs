@@ -1,6 +1,7 @@
 ﻿using PromoCodeFactory.Core.Domain;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace PromoCodeFactory.Core.Domain.PromoCodeManagement
 {
@@ -14,6 +15,11 @@ namespace PromoCodeFactory.Core.Domain.PromoCodeManagement
 
         public string Email { get; set; }
 
-        //TODO: Списки Preferences и Promocodes 
+        public IList<CustomerPreference> CustomerPreferences { get; set; }  // связь - предпочтения
+
+        public IList<PromoCode> PromoCodes { get; set; }  // промокоды
+
+        [StringLength(200)]
+        public string Comment { get; set; } = string.Empty; // добавлено новое поле - для создания новой дополнительной миграции (п.8 ДЗ)
     }
 }
