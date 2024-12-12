@@ -1,34 +1,36 @@
 ﻿services:
-
+  
+  #Database
   postgres:
+    container_name: 'promocode-postgres'
     image: postgres
     hostname: postgres
     restart: always
     environment:
-      POSTGRES_DB: postgres
+      POSTGRES_DB: otus
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     volumes:
       - pg-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-      
-  webapi:
-    #image: ghcr.io/rpry/otus_webapi:1.0
+  
+  #Webapi    
+  promocode-webapi:
+    container_name: 'promocode-webapi'
     image: webapi
     environment:
       "ASPNETCORE_ENVIRONMENT": "Development"
       "ASPNETCORE_URLS": "http://+:5100"
-      "RMQSettings:Host": "rabbitmqhost"
-      "RMQSettings:VHost": "/"
-      "RMQSettings:Login": "guest"
-      "RMQSettings:Password": "guest"
-      "ConnectionString2": "Host=postgres;Port=5432;Database=otus;UserId=postgres;Password=password"
+      "ConnectionString": "Host=postgres;Port=5432;Database=otus;UserId=postgres;Password=password"
     build:
       context: src
       dockerfile: Dockerfile
+    restart: always
     ports:
-      - "5101:5100"               
+      - "5101:5100"
+    depends_on: 
+      - postgres                 
  
 volumes:
   rabbitmq_data:
