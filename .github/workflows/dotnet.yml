@@ -3,6 +3,8 @@
 
 name: .NET
 
+working-directory: ./app
+
 on:
   push:
     branches: [ "main" ]
@@ -22,7 +24,10 @@ jobs:
         dotnet-version: 8.0.x
     - name: Restore dependencies
       run: dotnet restore
+      working-directory: ./Homeworks/UnitTests/src
     - name: Build
       run: dotnet build --no-restore
+      working-directory: ./Homeworks/UnitTests/src
     - name: Test
       run: dotnet test --no-build --verbosity normal
+      working-directory: ./Homeworks/UnitTests/src
