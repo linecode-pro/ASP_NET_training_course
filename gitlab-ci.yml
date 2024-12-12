@@ -1,0 +1,23 @@
+image: mcr.microsoft.com/dotnet/sdk:8.0
+
+stages:
+  - build
+  - test
+
+variables:
+  test: "Homeworks/UnitTests/src/PromoCodeFactory.UnitTests"  
+
+before_script:
+    - "cd $test"
+    - "dotnet restore"  
+
+build:
+  stage: build
+  script:
+    - "dotnet build"
+
+test:
+  stage: test
+  script:
+    - "cd /builds/otus1685550/ASP_NET_training_course/$test"
+    - "dotnet test"
