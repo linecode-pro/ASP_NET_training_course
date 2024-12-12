@@ -35,7 +35,8 @@ namespace PromoCodeFactory.WebHost
             // Подключить базу данных
             services.AddDbContext<DataContext>(options =>
             {
-                options.UseSqlite(configuration.GetConnectionString("DefaultConnection"));
+                //options.UseSqlite(configuration.GetConnectionString("DefaultConnection"));
+                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
                 options.EnableSensitiveDataLogging(); // подробный текст ошибок
             });
 
