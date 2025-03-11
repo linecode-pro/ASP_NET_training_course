@@ -1,0 +1,82 @@
+﻿name: "OtusNoSQL"
+
+services:
+  #Administration MongoDb
+  promocode-factory-administration-mongo-db:
+    image: mongo:latest
+    container_name: 'promocode-factory-administration-mongo-db'
+    restart: always 
+    ports:
+      - 27017:27017
+    networks:
+      - app-network 
+
+  #Administration Api
+  promocode-factory-administration-api:
+    build: src/Pcf.Administration/
+    container_name: 'promocode-factory-administration-api'
+    restart: always
+    ports:
+      - "8091:8080"
+    environment:
+      - MongoDb__ConnectionString=mongodb://promocode-factory-administration-mongo-db:27017
+    depends_on: 
+      - promocode-factory-administration-mongo-db
+    networks:
+      - app-network 
+
+
+
+  #ReceivingFromPartner Db
+  promocode-factory-receiving-from-partner-db:
+    image: "postgres:latest"
+    container_name: 'promocode-factory-receiving-from-partner-db'
+    restart: always 
+    ports:
+      - 5434:5432
+    environment: 
+      - POSTGRES_PASSWORD=docker
+
+  #ReceivingFromPartner Api
+  promocode-factory-receiving-from-partner-api:
+    build: src/Pcf.ReceivingFromPartner/
+    container_name: 'promocode-factory-receiving-from-partner-api'
+    restart: always
+    ports:
+      - "8092:8080"
+    environment:
+      - "ConnectionStrings:PromocodeFactoryReceivingFromPartnerDb=Host=promocode-factory-receiving-from-partner-db;Database=promocode_factory_receiving_from_partner_db;Username=postgres;Password=docker"
+      - "IntegrationSettings:GivingToCustomerApiUrl=http://promocode-factory-giving-to-customer-api"    
+      - "IntegrationSettings:AdministrationApiUrl=http://promocode-factory-administration-api"       
+    depends_on: 
+      - promocode-factory-receiving-from-partner-db
+  
+
+
+  #GivingToCustomer MongoDb
+  promocode-factory-giving-to-customer-mongo-db:
+    image: mongo:latest
+    container_name: 'promocode-factory-giving-to-customer-mongo-db'
+    restart: always 
+    ports:
+      - 27018:27017
+    networks:
+      - app-network
+
+  #GivingToCustomer Api
+  promocode-factory-giving-to-customer-api:
+    build: src/Pcf.GivingToCustomer/
+    container_name: 'promocode-factory-giving-to-customer-api'
+    restart: always
+    ports:
+      - "8093:8080"
+    environment:
+      - MongoDb__ConnectionString=mongodb://promocode-factory-giving-to-customer-mongo-db:27017
+    depends_on: 
+      - promocode-factory-giving-to-customer-mongo-db
+    networks:
+      - app-network
+
+networks:
+    app-network:
+        driver: bridge 

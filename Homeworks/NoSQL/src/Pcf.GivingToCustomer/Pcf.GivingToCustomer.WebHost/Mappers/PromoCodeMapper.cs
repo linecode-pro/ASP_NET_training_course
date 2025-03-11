@@ -9,7 +9,7 @@ using Pcf.GivingToCustomer.WebHost.Models;
 {
     public class PromoCodeMapper
     {
-        public static PromoCode MapFromModel(GivePromoCodeRequest request, Preference preference, IEnumerable<Customer> customers) {
+        public static PromoCode MapFromModel(GivePromoCodeRequest request, Preference preference, List<Customer> customers) {
 
             var promocode = new PromoCode();
             promocode.Id = request.PromoCodeId;
@@ -34,7 +34,7 @@ using Pcf.GivingToCustomer.WebHost.Models;
                     CustomerId = item.Id,
                     Customer = item,
                     PromoCodeId = promocode.Id,
-                    PromoCode = promocode
+                    //PromoCode = promocode
                 });
             };
 

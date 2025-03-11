@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,6 +17,9 @@ using Pcf.GivingToCustomer.DataAccess.Data;
 using Pcf.GivingToCustomer.DataAccess.Repositories;
 using Pcf.GivingToCustomer.Integration;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson;
 
 namespace Pcf.GivingToCustomer.WebHost
 {
@@ -35,16 +38,30 @@ namespace Pcf.GivingToCustomer.WebHost
         {
             services.AddControllers().AddMvcOptions(x=> 
                 x.SuppressAsyncSuffixInActionNames = false);
-            services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
+            //services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
             services.AddScoped<INotificationGateway, NotificationGateway>();
-            services.AddScoped<IDbInitializer, EfDbInitializer>();
-            services.AddDbContext<DataContext>(x =>
-            {
-                //x.UseSqlite("Filename=PromocodeFactoryGivingToCustomerDb.sqlite");
-                x.UseNpgsql(Configuration.GetConnectionString("PromocodeFactoryGivingToCustomerDb"));
-                x.UseSnakeCaseNamingConvention();
-                x.UseLazyLoadingProxies();
-            });
+            //services.AddScoped<IDbInitializer, EfDbInitializer>();
+            //services.AddDbContext<DataContext>(x =>
+            //{
+            //    //x.UseSqlite("Filename=PromocodeFactoryGivingToCustomerDb.sqlite");
+            //    x.UseNpgsql(Configuration.GetConnectionString("PromocodeFactoryGivingToCustomerDb"));
+            //    x.UseSnakeCaseNamingConvention();
+            //    x.UseLazyLoadingProxies();
+            //});
+
+
+
+            // *** Подключить MongoDB
+            services.Configure<MongoDatabaseSettings>(
+                Configuration.GetSection("MongoDb"));
+
+            services.AddScoped(typeof(IRepository<>), typeof(MongoRepository<>));
+            services.AddScoped<IDbInitializer, MongoDbInitializer>();
+
+            BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
+            // ***
+
+
 
             services.AddOpenApiDocument(options =>
             {

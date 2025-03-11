@@ -68,13 +68,41 @@ namespace Pcf.GivingToCustomer.WebHost.Controllers
             }
 
             //  Получаем клиентов с этим предпочтением:
-            var customers = await _customersRepository
+            var customers = (await _customersRepository
                 .GetWhere(d => d.Preferences.Any(x =>
-                    x.Preference.Id == preference.Id));
+                    x.Preference.Id == preference.Id))).ToList(); 
 
             PromoCode promoCode = PromoCodeMapper.MapFromModel(request, preference, customers);
 
             await _promoCodesRepository.AddAsync(promoCode);
+
+            // Записать новый промокод в customers
+            foreach (var customer in customers)
+            {
+                // Проверка с помощью LINQ
+                bool hasPromoCode = customer.PromoCodes.Any(pc => pc.PromoCodeId == promoCode.Id);
+                if (!hasPromoCode)
+                {
+                    var code = await _promoCodesRepository.GetByIdAsync(promoCode.Id);
+
+                    if (code is null)
+                    {
+                        return BadRequest("Промокод не найден по id");
+                    }
+
+                    // Очистить список пользователей, так как он нам здесь не нужен!
+                    code.Customers.Clear();
+
+                    customer.PromoCodes.Add(new() {
+                        PromoCodeId = promoCode.Id,
+                        PromoCode = code,
+                        CustomerId = customer.Id
+                    });
+
+                    // Записать изменения customer
+                    await _customersRepository.UpdateAsync(customer);
+                }
+            }
 
             return CreatedAtAction(nameof(GetPromocodesAsync), new { }, null);
         }

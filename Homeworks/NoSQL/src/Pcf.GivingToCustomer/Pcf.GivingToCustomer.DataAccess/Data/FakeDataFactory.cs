@@ -45,12 +45,14 @@ namespace Pcf.GivingToCustomer.DataAccess.Data
                             new CustomerPreference()
                             {
                                 CustomerId = customerId,
-                                PreferenceId = Guid.Parse("76324c47-68d2-472d-abb8-33cfa8cc0c84")
+                                PreferenceId = Guid.Parse("76324c47-68d2-472d-abb8-33cfa8cc0c84"),
+                                Preference = new() { Id = Guid.Parse("76324c47-68d2-472d-abb8-33cfa8cc0c84"), Name = "Дети"}
                             },
                             new CustomerPreference()
                             {
                                 CustomerId = customerId,
-                                PreferenceId = Guid.Parse("ef7f299f-92d7-459f-896e-078ed53ef99c")
+                                PreferenceId = Guid.Parse("ef7f299f-92d7-459f-896e-078ed53ef99c"),
+                                Preference = new() { Id = Guid.Parse("ef7f299f-92d7-459f-896e-078ed53ef99c"), Name = "Театр"}
                             }
                         }
                     }

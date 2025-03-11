@@ -16,6 +16,7 @@ namespace Pcf.Administration.DataAccess.Data
                 FirstName = "Иван",
                 LastName = "Сергеев",
                 Role = Roles.FirstOrDefault(x => x.Name == "Admin"),
+                RoleId = Roles.FirstOrDefault(x => x.Name == "Admin")?.Id ?? Guid.Empty,
                 AppliedPromocodesCount = 5
             },
             new Employee()
@@ -25,6 +26,7 @@ namespace Pcf.Administration.DataAccess.Data
                 FirstName = "Петр",
                 LastName = "Андреев",
                 Role = Roles.FirstOrDefault(x => x.Name == "PartnerManager"),
+                RoleId = Roles.FirstOrDefault(x => x.Name == "PartnerManager")?.Id ?? Guid.Empty,
                 AppliedPromocodesCount = 10
             },
         };

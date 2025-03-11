@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,6 +16,9 @@ using Pcf.Administration.DataAccess.Data;
 using Pcf.Administration.DataAccess.Repositories;
 using Pcf.Administration.Core.Domain.Administration;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson;
 
 namespace Pcf.Administration.WebHost
 {
@@ -32,17 +35,40 @@ namespace Pcf.Administration.WebHost
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAllOrigins",
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin()
+                               .AllowAnyMethod()
+                               .AllowAnyHeader();
+                    });
+            });
+
             services.AddControllers().AddMvcOptions(x=> 
                 x.SuppressAsyncSuffixInActionNames = false);
-            services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
-            services.AddScoped<IDbInitializer, EfDbInitializer>();
-            services.AddDbContext<DataContext>(x =>
-            {
-                //x.UseSqlite("Filename=PromocodeFactoryAdministrationDb.sqlite");
-                x.UseNpgsql(Configuration.GetConnectionString("PromocodeFactoryAdministrationDb"));
-                x.UseSnakeCaseNamingConvention();
-                x.UseLazyLoadingProxies();
-            });
+            //services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
+            //services.AddScoped<IDbInitializer, EfDbInitializer>();
+            //services.AddDbContext<DataContext>(x =>
+            //{
+            //    x.UseSqlite("Filename=PromocodeFactoryAdministrationDb.sqlite");
+            //    //x.UseNpgsql(Configuration.GetConnectionString("PromocodeFactoryAdministrationDb"));
+            //    x.UseSnakeCaseNamingConvention();
+            //    x.UseLazyLoadingProxies();
+            //});
+
+
+            // *** Подключить MongoDB
+            services.Configure<MongoDatabaseSettings>(
+                Configuration.GetSection("MongoDb"));
+
+            services.AddScoped(typeof(IRepository<>), typeof(MongoRepository<>));
+            services.AddScoped<IDbInitializer, MongoDbInitializer>();
+
+            BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
+            // ***
+
 
             services.AddOpenApiDocument(options =>
             {
@@ -54,6 +80,8 @@ namespace Pcf.Administration.WebHost
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IDbInitializer dbInitializer)
         {
+            app.UseCors("AllowAllOrigins"); // Включите CORS
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
